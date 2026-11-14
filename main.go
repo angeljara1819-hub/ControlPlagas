@@ -28,7 +28,7 @@ func main() {
 		mostrarMenu()
 		switch leer("Opción: ") {
 		case "1":
-			imprimir("Clientes", clientes.ListarClientes(leer("Tipo (vacío = todos): ")))
+			imprimir("Clientes", clientes.ListarClientes(leer("Tipo (residencial, comercial, industrial o Enter = todos): ")))
 		case "2":
 			imprimir("Técnicos activos", tecnicos.ListarActivos())
 		case "3":
@@ -42,6 +42,10 @@ func main() {
 		case "7":
 			imprimir("Inspecciones no conformes", inspecciones.ListarNoConformes())
 			fmt.Printf("Cumplimiento de calidad: %.1f %%\n", inspecciones.CalcularCumplimiento())
+		case "8":
+			opcionRegistrarCliente()
+		case "9":
+			opcionRegistrarTecnico()
 		case "0":
 			fmt.Println("Hasta pronto.")
 			return
@@ -59,7 +63,43 @@ func mostrarMenu() {
 	fmt.Println("5. Registrar consumo de producto")
 	fmt.Println("6. Productos bajo el stock mínimo")
 	fmt.Println("7. Calidad: no conformidades y cumplimiento")
+	fmt.Println("8. Registrar cliente")
+	fmt.Println("9. Registrar técnico")
 	fmt.Println("0. Salir")
+}
+
+// opcionRegistrarCliente pide los datos de un cliente nuevo y lo registra.
+// Si algún dato no es válido, muestra el error y no guarda nada.
+func opcionRegistrarCliente() {
+	nombre := leer("Nombre o razón social: ")
+	ruc := leer("RUC (13 dígitos): ")
+	telefono := leer("Teléfono: ")
+	direccion := leer("Dirección: ")
+	tipo := leer("Tipo (residencial, comercial, industrial): ")
+
+	id, err := clientes.RegistrarCliente(nombre, ruc, telefono, direccion, tipo)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	datos, _ := clientes.ConsultarCliente(id)
+	fmt.Println("Cliente registrado:", datos)
+}
+
+// opcionRegistrarTecnico pide los datos de un técnico nuevo y lo registra como activo.
+// Si algún dato no es válido, muestra el error y no guarda nada.
+func opcionRegistrarTecnico() {
+	nombre := leer("Nombre completo: ")
+	cedula := leer("Cédula (10 dígitos): ")
+	especialidad := leer("Especialidad (fumigacion, desratizacion, desinfeccion): ")
+
+	id, err := tecnicos.RegistrarTecnico(nombre, cedula, especialidad)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	datos, _ := tecnicos.ConsultarTecnico(id)
+	fmt.Println("Técnico registrado:", datos)
 }
 
 func opcionCalcularCosto() {
@@ -103,6 +143,9 @@ func leerNumero(mensaje string) float64 {
 
 func imprimir(titulo string, lineas []string) {
 	fmt.Printf("--- %s (%d) ---\n", titulo, len(lineas))
+	if len(lineas) == 0 {
+		fmt.Println("(sin resultados)")
+	}
 	for _, l := range lineas {
 		fmt.Println(l)
 	}
