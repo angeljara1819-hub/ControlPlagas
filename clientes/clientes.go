@@ -101,12 +101,13 @@ func EliminarCliente(id int) error {
 }
 
 // ListarClientes devuelve los clientes del tipo indicado, ordenados por ID.
-// Con tipo vacío devuelve todos.
+// Con tipo vacío o "todos" devuelve todos.
 func ListarClientes(tipo string) []string {
 	tipo = strings.ToLower(strings.TrimSpace(tipo))
+	todos := tipo == "" || tipo == "todos"
 	var lista []string
 	for _, id := range idsOrdenados() {
-		if tipo == "" || tipos[id] == tipo {
+		if todos || tipos[id] == tipo {
 			linea, _ := ConsultarCliente(id)
 			lista = append(lista, linea)
 		}
