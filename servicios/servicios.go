@@ -1,5 +1,5 @@
-// Package servicios gestiona las órdenes de servicio: fumigación,
-// desratización y desinfección. Es el núcleo del sistema.
+// Package servicios gestiona las órdenes de servicio: control de rastreros,
+// control de insectos voladores y control de roedores. Es el núcleo del sistema.
 //
 // Este paquete no importa clientes ni tecnicos: main verifica que el
 // cliente y el técnico existan antes de llamar a estas funciones. Así se
@@ -35,10 +35,20 @@ var ErrServicioNoEncontrado = errors.New("servicio no encontrado")
 // En el Aprendizaje Autónomo 2 cada tipo será un struct que implemente
 // la interfaz Servicio con su propio cálculo de costo.
 var tarifas = map[string]float64{
-	"fumigacion":    0.80,
-	"desratizacion": 0.50,
-	"desinfeccion":  0.65,
+	"rastreros": 0.80,
+	"voladores": 0.70,
+	"roedores":  0.50,
 }
+
+// nombresTipo guarda el nombre completo de cada tipo, para mostrarlo al usuario.
+var nombresTipo = map[string]string{
+	"rastreros": "control de rastreros",
+	"voladores": "control de insectos voladores",
+	"roedores":  "control de roedores",
+}
+
+// ordenTipos fija el orden en que se muestran los tipos de servicio.
+var ordenTipos = []string{"rastreros", "voladores", "roedores"}
 
 // transiciones define a qué estados se puede pasar desde cada estado.
 var transiciones = map[string][]string{
@@ -146,8 +156,17 @@ func ConsultarServicio(idServicio int) (string, error) {
 		tecnico = fmt.Sprintf("técnico #%d", t)
 	}
 	return fmt.Sprintf("#%d %s | %s | cliente #%d | %s | %s",
-		idServicio, fechaDe[idServicio], tipoDe[idServicio],
+		idServicio, fechaDe[idServicio], nombresTipo[tipoDe[idServicio]],
 		clienteDe[idServicio], tecnico, estadoDe[idServicio]), nil
+}
+
+// TiposDisponibles devuelve los tipos de servicio con su tarifa, para mostrarlos en el menú.
+func TiposDisponibles() []string {
+	lista := make([]string, 0, len(ordenTipos))
+	for _, t := range ordenTipos {
+		lista = append(lista, fmt.Sprintf("%s: %s (USD %.2f por m²)", t, nombresTipo[t], tarifas[t]))
+	}
+	return lista
 }
 
 // ListarPorFecha devuelve la agenda de servicios de un día (AAAA-MM-DD).
@@ -178,9 +197,19 @@ func puedePasar(desde, hacia string) bool {
 	return false
 }
 
-// normalizarTipo pasa el tipo a minúsculas y sin tildes para aceptar
-// "Fumigación", "fumigacion" o "FUMIGACION".
+// normalizarTipo convierte lo que escribe el usuario en la clave del tipo de
+// servicio. Acepta formas como "rastreros", "Control de rastreros",
+// "insectos voladores" o "ROEDORES".
 func normalizarTipo(tipo string) string {
 	reemplazos := strings.NewReplacer("á", "a", "é", "e", "í", "i", "ó", "o", "ú", "u")
-	return reemplazos.Replace(strings.ToLower(strings.TrimSpace(tipo)))
+	t := reemplazos.Replace(strings.ToLower(strings.TrimSpace(tipo)))
+	switch {
+	case strings.Contains(t, "rastrero"):
+		return "rastreros"
+	case strings.Contains(t, "volador"):
+		return "voladores"
+	case strings.Contains(t, "roedor"):
+		return "roedores"
+	}
+	return t
 }
