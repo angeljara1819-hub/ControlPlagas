@@ -81,7 +81,3 @@ go run .         # ejecuta el menú con datos de ejemplo
 
 Solo la librería estándar de Go: `fmt`, `errors`, `strings`, `strconv`, `sort`, `time`, `bufio` y `os`. No se usan paquetes de terceros.
 
-## Próximas etapas
-
-- **Aprendizaje Autónomo 2:** structs (`Cliente`, `Tecnico`, `Producto`, `Inspeccion`…) con constructores, métodos y encapsulación, y una interfaz `Servicio` implementada por `ControlRastreros`, `ControlVoladores` y `ControlRoedores`.
-- **Evaluación final:** el sistema como aplicación web con al menos 8 servicios JSON, concurrencia segura y pruebas.
